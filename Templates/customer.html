@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %} About Page {{ super() }}{% endblock %}
+{% block page_title %} {{title}} {% endblock %}
+{% block content %}
+    <p>{{content}}</p>
+    <p>Our company does stuff..</p><br>
+    <h2>Contact Us!</h2>
+    <form method="POST">
+        {{ form.csrf_token }}
+        {{form.fname.label}}<br>
+        {{form.fname}}<br><br>
+        {{form.lname.label}}<br>
+        {{form.lname}}<br><br>
+        {{form.email.label}}<br>
+        {{form.email}}<br><br>
+        {{form.message.label}}<br>
+        {{form.message}}<br><br>
+        {{form.submit}}
+    </form>
+    {% if form.fname.data %}
+    <h1>{{ msg }}</h1>
+    {% endif %}
+    {% endblock %}

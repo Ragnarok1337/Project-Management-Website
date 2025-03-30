@@ -1,0 +1,22 @@
+<html>
+    <title>Login Page</title>
+    
+    <body>
+        {% block title %} About Page {% endblock %}
+        {% block page_title %} {{title}} {% endblock %}
+        {% block content %}
+        <p>{{content}}</p>
+        <p>Otherwise register an account</p><br>
+        <h2>Contact Us!</h2>
+        <form action="/login" method="POST">
+            {{form.csrf_token}}
+            {{form.username.label}}<br>
+            {{form.username}}<br><br>
+            {{form.password.label}}<br>
+            {{form.password}}<br><br>
+            {{form.submit}}
+        </form>
+    
+        {% endblock %}
+    </body>
+</html>   

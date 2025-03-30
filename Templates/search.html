@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Customers Filters Page- {{ super() }}{% endblock %}  </br>
+
+{% block page_title %} {{title}} {% endblock %}
+
+{% block content %}
+
+    <p>{{ content }}</p>  
+
+        <form action="/search" method="POST">
+
+        {{sform.csrf_token()}} {#csrf token is used to protect the form from malicious requests#}
+
+        {{sform.value.label}}
+
+        {{sform.value}}</br>
+
+        <button type="submit" name="search_id">Search by ID</button>
+
+        <button type="submit" name="search_country">Search by Country</button>
+
+        <button type="submit" name="search_lname">Search by Last Name</button></br>
+
+        <button type="submit" name="order">Order Report by last name</button>
+
+        <button type="submit" name="group">Group by Country</button>
+
+
+
+    </form>
+
+    {% endblock %}

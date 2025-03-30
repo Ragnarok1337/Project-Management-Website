@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %} About Page {{ super() }}{% endblock %}
+{% block page_title %} {{ title }} {% endblock %}
+{% block content %}
+<p>{{content}}</p>
+{% for i in records %}
+{{ i.fname }}
+{{ i.lname }}
+{{ i.gender }}
+{{ i.country }}
+{{ i.date }}
+{% endfor %}
+
+
+{% endblock %}

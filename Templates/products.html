@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %} About Page {{ super() }}{% endblock %}
+{% block page_title %} {{ title }} {% endblock %}
+{% block content %}
+    <p>{{ content }}</p>
+    <p>Our company does stuff..</p><br>
+    <h2>Contact Us!</h2>
+    <form method="POST">
+        {{ form.csrf_token }} <!-- Fixed typo from crsf_token -->
+        {{ form.product.label }}
+        {{ form.product(id="product-select") }}<br><br> <!-- Added id -->
+        
+        <p id="price-display">Price: Select a product to see the price</p>
+        
+        {{ form.color.label }}
+        {{ form.color() }}
+        {{ form.submit() }}
+    </form>
+    {% if form.product.data %}
+        <h1>{{ msg }}</h1>
+    {% endif %}
+
+    <!-- JAVASCRIPT SECTION -->
+    <script>
+        // Define the price mapping (same as in form.py)
+        const prices = {
+            'Coat': 79.99,
+            'Shirt': 19.99,
+            'Sweater': 49.99,
+            'Pants': 29.99,
+            'Hat': 14.99,
+            'Shorts': 24.99 // Added for completeness
+        };
+
+        // Get DOM elements
+        const productSelect = document.getElementById('product-select');
+        const priceDisplay = document.getElementById('price-display');
+
+        // Function to update price display
+        function updatePrice() {
+            const selectedProduct = productSelect.value;
+            if (selectedProduct && selectedProduct in prices) {
+                priceDisplay.innerText = `Price: $${prices[selectedProduct].toFixed(2)}`;
+            } else {
+                priceDisplay.innerText = 'Price: Select a product to see the price';
+            }
+        }
+
+        // Add event listener for 'change' event
+        productSelect.addEventListener('change', updatePrice);
+
+        // Run once on page load to set initial price (if a default is selected)
+        updatePrice();
+    </script>
+{% endblock %}

@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+
+
+{% block title %}Report Result- {{ super() }}{% endblock %}  </br>
+
+{% block page_title %} {{title}} {% endblock %}
+
+{% block content %}
+
+{% if records %}
+
+{%if grouping %}
+
+<table border="1">
+
+    <thead>
+
+        <tr><th>Country</th><th>Number of Customers</th></tr>
+
+    </thead>  
+
+    <tbody>
+
+        {% for country, count in records %}
+
+    <tr>
+
+        <td>{{ country }}</td>
+
+        <td>{{ count }}</td>
+
+    </tr>
+
+    </tbody>
+
+    {% endfor %}
+
+</table>
+
+{%else%}
+
+    <table border="1">
+
+        <thead>
+
+            <tr>
+
+                {% for column in columns %}
+
+                    <th>{{ column }}</th>
+
+                {% endfor %}
+
+            </tr>
+
+        </thead>  
+
+            {% for r in records %}
+
+            <tbody>
+
+            <tr>
+
+                <td>{{ r.id }}</td>
+
+                <td>{{ r.fname }}</td>
+
+                <td>{{ r.lname }}</td>
+
+                <td>{{ r.gender }}</td>
+
+                <td>{{ r.country }}</td>
+
+                <td>{{ r.date }}</td>
+
+            </tr>
+
+            </tbody>
+
+            {% endfor %}
+
+            </table>
+
+{%endif%}
+
+{% else %}            
+
+<p>No record found.</p>
+
+{% endif %}
+
+           
+
+{% endblock %}

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css')}}">
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="/" class="nav-links">Home</a>
+            <a href="/customer" class="nav-links">Customer Info</a>
+            <a href="/products" class="nav-links">Products</a>
+            <a href="/order" class="nav-links">Place Order</a>
+            <a href="/report" class="nav-links">Reports</a>
+            <a href="/log" class="nav-links">Logs</a>
+            <a href="/search" class="nav-links">Search</a>
+            <a href="/search_json" class="nav-links">Search as JSON</a>
+        </nav>
+    </header>
+
+    <main>
+        <h1>{% block page_title %}{% endblock %}</h1>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        <p>My Website - © 2025</p>
+    </footer>
+</body>
+</html>
