@@ -1,5 +1,5 @@
 from main_app import app
-from model import db, MyTable
+from model import db, Tasks, Users
 from flask import render_template, redirect, url_for, flash
 from datetime import datetime
 from form import ContactForm, ProductForm, AddTaskForm, LoginForm
@@ -31,47 +31,48 @@ def display_login():
 def display_home():  
     return render_template("index.html", title="Virginia Store (Index/Home page)", content="These are our products!")
 
-@app.route('/search', methods=['GET', 'POST']) #this is the log page that will print all flash messages
-
-## SEARCH PAGE ROUTING
+# SEARCH PAGE
+@app.route('/search', methods=['GET', 'POST'])
 def search_page():
+    sform = form.SearchForm()
 
-   grouping=False
+    # Get column names for display in results
+    task_columns = [column.name for column in Tasks.__table__.columns]
+    user_columns = [column.name for column in Users.__table__.columns]
 
-   sform = form.SearchForm()
+    if request.method == 'POST' and sform.validate_on_submit():
+        value = sform.value.data
+        records = []
 
-   columns = [column.name for column in MyTable.__table__.columns]
+        if 'search_title' in request.form:
+            # Search by task title
+            records = Tasks.query.filter(Tasks.title.ilike(f"%{value}%")).all()
 
-   if request.method == 'POST':
+        elif 'search_description' in request.form:
+            # Search by task body (not description)
+            records = Tasks.query.filter(Tasks.body.ilike(f"%{value}%")).all()
 
-      value=sform.value.data
+        elif 'search_username' in request.form:
+            # Search by username
+            records = Users.query.filter(Users.username.ilike(f"%{value}%")).all()
 
-      if 'search_id' in request.form:  
+        return render_template(
+            'search_result.html',
+            title="Search result",
+            task_columns=task_columns,
+            user_columns=user_columns,
+            records=records
+        )
 
-         records = MyTable.query.filter_by(id=int(value)).all()
+    return render_template(
+        'search.html',
+        sform=sform,
+        title="Search Tasks",
+        content="Search through active tasks and users."
+    )
 
-      elif 'search_lname' in request.form:  
 
-         records = MyTable.query.filter(func.lower(MyTable.lname) == value.lower()).all()
-
-      elif 'search_country' in request.form:  
-
-         records = MyTable.query.filter(func.lower(MyTable.country) == value.lower()).all()
-
-      elif 'order' in request.form:  #Records ordered by last name in Ascending order
-
-         records = MyTable.query.order_by(MyTable.lname).all()
-
-      elif 'group' in request.form:  #group by country
-
-         grouping=True
-
-         records = db.session.query(MyTable.country, func.count(MyTable.id)).group_by(MyTable.country).all()
-
-      return render_template('search_result.html',title="Search result", grouping=grouping, columns=columns, records=records)
-
-   return render_template('search.html', sform=sform, title="Search by filter", content="type a filter and click the button")
-
+# LOG SECTION
 @app.route('/log')
 def display_log():
     return render_template("log.html", title="Flash Logs", content="Changes made this session.")

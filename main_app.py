@@ -11,7 +11,7 @@ app.config['SECRET_KEY']='FUCK'
 
 # Define the absolute path for the database
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
-DATABASE_PATH = os.path.join(BASE_DIR, 'mydatabase.db')
+DATABASE_PATH = os.path.join(BASE_DIR, 'ProjectManagement.db')
 
 # Set the SQLAlchemy database URI to the absolute path
 app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DATABASE_PATH}'

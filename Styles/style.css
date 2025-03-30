@@ -64,3 +64,22 @@ footer {
     bottom: 0;
     width: 100%;
 }
+
+/* Search Page */
+.searchBtn{
+    width:20%;
+    color:white;
+    background-color: black;
+    padding-top:10px;
+    padding-bottom:10px;
+}
+
+.searchBtn:hover{
+    color:cyan;
+}
+
+#searchBtnDiv{
+    display:flex; 
+    flex-direction:column;
+    margin-top:25px;
+}
