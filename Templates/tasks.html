@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}
+    All Tasks - {{ super() }}
+{% endblock %}
+
+{% block page_title %}
+    {{ title }}
+{% endblock %}
+
+{% block content %}
+    <p>{{ content }}</p>
+    
+    <!-- Tasks table section -->
+    <h2>All Tasks</h2>
+    {% if tasks %}
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Title</th>
+                    <th>Body</th>
+                    <th>Assigned To</th>
+                    <th>Created By</th>
+                    <th>Date Created</th>
+                    <th>Completed</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for task in tasks %}
+                    <tr>
+                        <td>{{ task.id }}</td>
+                        <td>{{ task.title }}</td>
+                        <td>{{ task.body }}</td>
+                        <td>{{ task.assigned_user.username if task.assigned_user else 'None' }}</td>
+                        <td>{{ task.creator_user.username if task.creator_user else 'None' }}</td>
+                        <td>{{ task.date_created }}</td>
+                        <td>{{ 'Yes' if task.completed else 'No' }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No tasks found in the database.</p>
+    {% endif %}
+{% endblock %}

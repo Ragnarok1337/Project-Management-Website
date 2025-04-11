@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Employees - {{ super() }}
+{% endblock %}
+
+{% block page_title %}
+    {{ title }}
+{% endblock %}
+
+{% block content %}
+    <p>{{ content }}</p>
+    
+    <h2>All Employees</h2>
+    {% if employees %}
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Username</th>
+                    <th>Password</th>
+                    <th>Role</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for employee in employees %}
+                    <tr>
+                        <td>{{ employee.id }}</td>
+                        <td>{{ employee.username }}</td>
+                        <td>{{ employee.password }}</td>
+                        <td>{{ employee.role }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No employees found in the database.</p>
+    {% endif %}
+{% endblock %}

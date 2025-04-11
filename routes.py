@@ -1,39 +1,61 @@
 from main_app import app
 from model import db, Tasks, Users
-from flask import render_template, redirect, url_for, flash
+from flask import render_template, redirect, url_for, flash, session, request
 from datetime import datetime
 from form import ContactForm, ProductForm, AddTaskForm, LoginForm
 import form
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import func 
-from flask import jsonify, request
-import json
+from sqlalchemy import func
+from flask import jsonify
+from current_session import CurrentSession  as CS
 
-@app.route('/') # Run the API from localhost:5000
+# Current Session Instance
 
+@app.route('/')  # Run the API from localhost:5000
+def home():
+    return redirect(url_for('display_login'))
+
+# Index/Home Page
+@app.route('/index')
+def display_home():
+    
+    if CS.isLoggedIn():
+        return redirect(url_for("display_login"))
+    return render_template("index.html", title="Virginia Store (Index/Home page)", content="These are our products!", username=session.get("username"))
+
+#Login Page
 @app.route('/login', methods=['GET', 'POST'])
 def display_login():
     form = LoginForm()
-    if form.validate_on_submit():
-        ### USERNAME AND PASSWORD ###
-        if form.username.data == 'admin' and form.password.data == '123':
+    msg = ""
+    
+    if request.method == 'POST' and form.validate_on_submit():
+        username = form.username.data
+        password = form.password.data
+        
+        if CS.authenticate(username, password):
+            session["username"] = username
             print("Login successful!")
-            return redirect("/index")
+            return redirect(url_for("display_home"))
         else:
             msg = "Incorrect username or password. Try again."
             form.username.data = ""
             form.password.data = ""
 
-    return render_template("login.html", title="Login Page", content="Enter your username and password.", form=form)
+    return render_template("login.html", title="Login Page", content="Enter your username and password.", form=form, msg=msg)
 
+# Logout Routing
+@app.route('/logout')
+def logout():
+    session.pop("username", None)
+    return redirect(url_for('display_login'))
 
-@app.route('/index')
-def display_home():  
-    return render_template("index.html", title="Virginia Store (Index/Home page)", content="These are our products!")
-
-# SEARCH PAGE
+# Search Page
 @app.route('/search', methods=['GET', 'POST'])
 def search_page():
+    if CS.isLoggedIn():
+        return redirect(url_for("display_login"))
+
     sform = form.SearchForm()
 
     # Get column names for display in results
@@ -45,15 +67,10 @@ def search_page():
         records = []
 
         if 'search_title' in request.form:
-            # Search by task title
             records = Tasks.query.filter(Tasks.title.ilike(f"%{value}%")).all()
-
         elif 'search_description' in request.form:
-            # Search by task body (not description)
             records = Tasks.query.filter(Tasks.body.ilike(f"%{value}%")).all()
-
         elif 'search_username' in request.form:
-            # Search by username
             records = Users.query.filter(Users.username.ilike(f"%{value}%")).all()
 
         return render_template(
@@ -71,58 +88,65 @@ def search_page():
         content="Search through active tasks and users."
     )
 
-
-# LOG SECTION
+# Log Page
 @app.route('/log')
 def display_log():
+    if CS.isLoggedIn():
+        return redirect(url_for("display_login"))
     return render_template("log.html", title="Flash Logs", content="Changes made this session.")
 
-@app.route('/report')
-def display_report():
-    records=MyTable.query.all()
-    return render_template('report.html', title="Reports Page", content="View current orders here!", records=records)
-
-@app.route('/order', methods=['GET','POST'])
+# Add Task Page - ( Only Visible To Admin & Manager Role Users )
+@app.route('/add-task', methods=['GET', 'POST'])
 def display_order():
+    if CS.isLoggedIn():
+        return redirect(url_for("display_login"))
+
     form = AddTaskForm()
     if form.validate_on_submit():
         with app.app_context():
             try:
-                t = MyTable(fname=form.fname.data, lname=form.lname.data, gender=form.gender.data, country=form.country.data, date=datetime.utcnow())
-                country=form.country.data,
+                t = form.TaskTable(fname=form.fname.data, lname=form.lname.data, gender=form.gender.data, country=form.country.data, date=datetime.utcnow())
                 db.session.add(t)
                 db.session.commit()
                 print("Table created and record added successfully!")
             except Exception as e:
-                print("Error occured while attempting to add record to table.. >:[")
+                print("Error occurred while attempting to add record to table.")
                 db.session.rollback()
         return redirect(url_for('display_report'))
 
     return render_template("order.html", form=form, title="Order Page", content="Enter your information to place order!")
 
-@app.route('/customer', methods=['GET','POST'])
-def display_customer():
-    form = ContactForm()
-    msg = ""
+# EMPLOYEES PAGE
+@app.route('/employees', methods=['GET'])
+def display_employees():
+    if CS.isLoggedIn():
+        return redirect(url_for("display_login"))
 
-    if form.validate_on_submit():
-        print("Form Submitted!")
-        name = form.fname.data + " " + form.lname.data
-        email = form.email.data
-        msg=f"Thank you {name}. We will send a confirmation email to {email}"
-        
-    return render_template("customer.html", title="Customer Info Page!", content="Enter customer information on this page.", form=form, msg=msg)
+    employees = Users.query.all()
+    employee_columns = [column.name for column in Users.__table__.columns]
 
-@app.route('/products', methods=['GET','POST'])
-def display_products():
-    form = ProductForm()
-    
-    msg = "Test"
-    if form.validate_on_submit():
-        print("Form Submitted!")
-        print("Product Ordered: ", form.product.data, "Color Choice: ", form.color.data)
-        product = form.color.data + " " + form.product.data
-        msg= f"You ordered 1 {product}. Shipping will take 5-7 business days!"
-       
-    
-    return render_template("products.html", title="Product Info Page!", content="Order products on this page.", form=form, msg=msg)
+    return render_template(
+        "employees.html",
+        title="Employee Info Page!",
+        content="View all employee information on this page.",
+        employees=employees,
+        employee_columns=employee_columns
+    )
+
+# ALL TASKS PAGE
+@app.route('/tasks', methods=['GET', 'POST'])
+def display_tasks():
+    if CS.isLoggedIn():
+        return redirect(url_for("display_login"))
+
+    tasks = Tasks.query.all()
+    task_columns = [column.name for column in Tasks.__table__.columns]
+
+    return render_template(
+        "tasks.html",
+        title="All Tasks Page!",
+        content="View all active tasks on this page.",
+        form=form,
+        tasks=tasks,
+        task_columns=task_columns
+    )

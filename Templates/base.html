@@ -9,16 +9,23 @@
 <body>
     <header>
         <nav>
-            <a href="/" class="nav-links">Home</a>
-            <a href="/customer" class="nav-links">Customer Info</a>
-            <a href="/products" class="nav-links">Products</a>
-            <a href="/order" class="nav-links">Place Order</a>
-            <a href="/report" class="nav-links">Reports</a>
+            <a href="/index" class="nav-links">Home</a>
+            <a href="/employees" class="nav-links">Employee Info</a>
+            <a href="/tasks" class="nav-links">All Tasks</a>
+            
             <a href="/log" class="nav-links">Logs</a>
             <a href="/search" class="nav-links">Search</a>
             <a href="/search_json" class="nav-links">Search as JSON</a>
+            {% if username == "admin" %}
+            <a href="/admin-actions" class="nav-links">Admin Actions</a>
+            {% endif %}
+            {% if username == "admin" %}
+            <a href="/manager-actions" class="nav-links">Manager Actions</a>
+            {% endif %}
         </nav>
     </header>
+
+    <!-- ADD THIS AS A JINJA CONDITIONAL AFTER CREATING CURRENT SESSION CLASS : <a href="/admin-actions" class="nav-links">Add User</a>-->
 
     <main>
         <h1>{% block page_title %}{% endblock %}</h1>

@@ -1,6 +1,7 @@
 from flask import Flask
 from model import db
 import os
+import tserver
 
 app=Flask(__name__, static_folder="Styles")
 app.config['SECRET_KEY']='FUCK'
@@ -27,5 +28,7 @@ with app.app_context():
 
 from routes import *
 if __name__ == '__main__':
-    app.run(debug=True)
+    tserver.tornado_server(app)
+    ## Original Initialization
+    # app.run(debug=True)
     
