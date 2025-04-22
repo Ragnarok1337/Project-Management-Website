@@ -18,6 +18,8 @@ body {
 header {
     background-color: #1b0846;
     padding: 10px;
+    display: flex;
+    justify-content:space-between;
 }
 
 nav a {
@@ -82,4 +84,33 @@ footer {
     display:flex; 
     flex-direction:column;
     margin-top:25px;
+}
+
+/* Admin Actions Page */
+.admin-container {
+    display: flex;
+    justify-content: space-between; /* Distributes space evenly */
+    gap: 20px; /* Space between sections */
+}
+
+.admin-section {
+    flex: 1; /* Each section takes equal space */
+    padding: 10px;
+    border: 1px solid #ccc; /* Optional: for visibility */
+    box-sizing: border-box; /* Ensures padding doesn't affect width */
+}
+
+#description-box {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px; /* Control spacing between label and textarea */
+}
+
+#description-box label {
+    margin: 0; /* Remove default margins */
+}
+
+#description-box textarea {
+    margin: 0; /* Remove default margins */
 }

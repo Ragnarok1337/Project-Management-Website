@@ -11,17 +11,20 @@
         <nav>
             <a href="/index" class="nav-links">Home</a>
             <a href="/employees" class="nav-links">Employee Info</a>
-            <a href="/tasks" class="nav-links">All Tasks</a>
-            
+            <a href="/all-tasks" class="nav-links">All Tasks</a>
             <a href="/log" class="nav-links">Logs</a>
             <a href="/search" class="nav-links">Search</a>
-            <a href="/search_json" class="nav-links">Search as JSON</a>
-            {% if username == "admin" %}
+            {% if CS.getUsername() == "admin" %}
+
             <a href="/admin-actions" class="nav-links">Admin Actions</a>
             {% endif %}
-            {% if username == "admin" %}
+            
+            {% if CS.getRole().lower() == "manager" %}
             <a href="/manager-actions" class="nav-links">Manager Actions</a>
             {% endif %}
+        </nav>
+        <nav>
+            <button onclick="window.location.href='/logout'">Logout</button>
         </nav>
     </header>
 

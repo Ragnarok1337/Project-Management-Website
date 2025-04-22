@@ -1,0 +1,17 @@
+<div class="admin-section">
+    <h2>Add Tasks</h2>
+    {% if task_form %}
+        <form method="POST">
+            {{ task_form.hidden_tag() }}
+            <input type="hidden" name="task_submit" value="1">
+            <p>{{ task_form.title.label }} {{ task_form.title() }}</p>
+            <div id="description-box">
+                <p>{{ task_form.body.label }}</p>
+                
+            </div>
+            <p>{{ task_form.body() }}</p>
+            <p>{{ task_form.role.label }} {{ task_form.role() }}</p>
+            <p>{{ task_form.submit() }}</p>
+        </form>
+    {% endif %}
+</div>

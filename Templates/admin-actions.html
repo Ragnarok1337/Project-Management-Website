@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %} Admin Actions {{ super() }}{% endblock %}
+{% block page_title %} {{ title }} {% endblock %}
+{% block content %}
+    <p>{{ content }}</p>
+    <div class="admin-container">
+        <!-- Include add-task.html content -->
+        <div class="admin-section">
+            {% include "add-task.html" ignore missing %}
+        </div>
+        <!-- Include add-user.html content -->
+        <div class="admin-section">
+            {% include "add-user.html" ignore missing %}
+        </div>
+    </div>
+{% endblock %}
