@@ -15,26 +15,20 @@
             <a href="/log" class="nav-links">Logs</a>
             <a href="/search" class="nav-links">Search</a>
             {% if CS.getUsername() == "admin" %}
-
-            <a href="/admin-actions" class="nav-links">Admin Actions</a>
+                <a href="/admin-actions" class="nav-links">Admin Actions</a>
             {% endif %}
-            
-            {% if CS.getRole().lower() == "manager" %}
-            <a href="/manager-actions" class="nav-links">Manager Actions</a>
+            {% if CS.getRole() and CS.getRole().lower() == "manager" %}
+                <a href="/manager-actions" class="nav-links">Manager Actions</a>
             {% endif %}
         </nav>
         <nav>
             <button onclick="window.location.href='/logout'">Logout</button>
         </nav>
     </header>
-
-    <!-- ADD THIS AS A JINJA CONDITIONAL AFTER CREATING CURRENT SESSION CLASS : <a href="/admin-actions" class="nav-links">Add User</a>-->
-
     <main>
         <h1>{% block page_title %}{% endblock %}</h1>
         {% block content %}{% endblock %}
     </main>
-
     <footer>
         <p>My Website - © 2025</p>
     </footer>

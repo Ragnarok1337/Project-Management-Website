@@ -114,3 +114,27 @@ footer {
 #description-box textarea {
     margin: 0; /* Remove default margins */
 }
+
+/* All Tasks Page */
+#tasks-grid {
+    display: flex;
+    flex-wrap: wrap; /* Allow wrapping to next row */
+    gap: 20px; /* Space between task cards */
+}
+
+.task-card {
+    flex: 1 1 calc(50% - 20px); /* Two cards per row, accounting for gap */
+    box-sizing: border-box;
+    padding: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #077A7D;
+}
+
+#task-title{
+    color:white;
+}
+
+.task-details{
+    color:rgb(255, 241, 198);
+}

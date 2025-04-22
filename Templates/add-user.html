@@ -1,13 +1,17 @@
 <div class="admin-section">
     <h2>Create User</h2>
-    {% if user_form %}
-        <form method="POST">
-            {{ user_form.hidden_tag() }}
-            <input type="hidden" name="user_submit" value="1">
-            <p>{{ user_form.username.label }} {{ user_form.username() }}</p>
-            <p>{{ user_form.password.label }} {{ user_form.password() }}</p>
-            <p>{{ user_form.role.label }} {{ user_form.role() }}</p>
-            <p>{{ user_form.submit() }}</p>
-        </form>
+    {% if user_submitted %}
+        <p>User created successfully!</p>
+    {% else %}
+        {% if user_form %}
+            <form method="POST">
+                {{ user_form.hidden_tag() }}
+                <input type="hidden" name="user_submit" value="1">
+                <p>{{ user_form.username.label }} {{ user_form.username() }}</p>
+                <p>{{ user_form.password.label }} {{ user_form.password() }}</p>
+                <p>{{ user_form.role.label }} {{ user_form.role() }}</p>
+                <p>{{ user_form.submit() }}</p>
+            </form>
+        {% endif %}
     {% endif %}
 </div>

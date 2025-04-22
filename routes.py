@@ -46,8 +46,6 @@ def display_login():
         
         if CS.authenticate(username, password):
             session["username"] = username
-            print(f"Login successful! Session username: {session.get('username')}")
-            print(f"Redirecting to display_home")
             return redirect(url_for("display_home"))
         else:
             msg = "Incorrect username or password. Try again."
@@ -74,17 +72,27 @@ def search_page():
     # Get column names for display in results
     task_columns = [column.name for column in Tasks.__table__.columns]
     user_columns = [column.name for column in Users.__table__.columns]
+    
+    records = []
+    user = None
+    searchType= None
 
     if request.method == 'POST' and sform.validate_on_submit():
         value = sform.value.data
-        records = []
+        
+        
 
         if 'search_title' in request.form:
+            searchType = "title"
             records = Tasks.query.filter(Tasks.title.ilike(f"%{value}%")).all()
         elif 'search_description' in request.form:
+            searchType = "description"
             records = Tasks.query.filter(Tasks.body.ilike(f"%{value}%")).all()
         elif 'search_username' in request.form:
-            records = Users.query.filter(Users.username.ilike(f"%{value}%")).all()
+            searchType = "username"
+            records = Users.query.filter(Users.username.ilike(f"{value}")).all()
+            if records:
+                user = records[0]
 
         return render_template(
             'search_result.html',
@@ -92,6 +100,9 @@ def search_page():
             task_columns=task_columns,
             user_columns=user_columns,
             records=records,
+            searchedUser = user,
+            searchType = searchType,
+            searchTerm = value,
             CS=CS
         )
 
@@ -111,6 +122,8 @@ def admin_actions():
     
     task_form = AddTaskForm()
     user_form = AddUserForm()
+    task_submitted = False
+    user_submitted = False
     
     # Handle Add Task form submission
     if task_form.validate_on_submit() and 'task_submit' in request.form:
@@ -122,13 +135,16 @@ def admin_actions():
             title=title,
             body=body,
             assigned_to=assigned_user.id if assigned_user else None,
-            created_by=Users.query.filter_by(username=CS.getUsername()).first().id,
-            date_created=datetime.utcnow().strftime("%Y%m%d"),
+            created_by=CS.getID(),
+            date_created=datetime.utcnow().strftime("%m-%d-%y"),
             completed=0
         )
+        
         db.session.add(task)
         db.session.commit()
-        return redirect(url_for("admin_actions"))
+        # Hide form variable
+        task_submitted = True
+        
     
     # Handle Add User form submission
     if user_form.validate_on_submit() and 'user_submit' in request.form:
@@ -138,7 +154,9 @@ def admin_actions():
         new_user = Users(username=username, password=password, role=role)
         db.session.add(new_user)
         db.session.commit()
-        return redirect(url_for("admin_actions"))
+        # Hide form variable
+        user_submitted = True
+        
     
     return render_template(
         "admin-actions.html",
@@ -146,6 +164,8 @@ def admin_actions():
         content="Use forms to complete the following actions:",
         task_form=task_form,  # For add-task.html
         user_form=user_form,  # For add-user.html
+        task_submitted=task_submitted,
+        user_submitted=user_submitted,
         CS=CS
     )
 

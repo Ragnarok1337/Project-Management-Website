@@ -28,7 +28,10 @@ with app.app_context():
 
 from routes import *
 if __name__ == '__main__':
-    tserver.tornado_server(app)
-    ## Original Initialization
-    # app.run(debug=True)
+    
+    # tserver.tornado_server(app)
+
+    ## Live Reload - Development
+    app.run(debug=True)
+    
     

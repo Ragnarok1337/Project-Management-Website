@@ -9,10 +9,21 @@
 {% endblock %}
 
 {% block content %}
-    <h2>Search Results</h2>
+    {% if searchType == "title" %}
+        <h2>Titles Containing: {{searchTerm}}</h2>
+    {% elif searchType == "description" %}
+        <h2>Descriptions Containing: {{searchTerm}}</h2>
+    {% elif searchType == "username" %}
+        {% if searchedUser != "" %}
+            <h2>All Tasks Assigned to User {{searchedUser}}:</h2>
+        {% endif %}
+    {% endif %}
+    
 
     {% if records %}
         {% if 'title' in records[0].__dict__ %}
+            
+            
             <table border="1">
                 <thead>
                     <tr>
@@ -63,4 +74,6 @@
     {% else %}
         <p>No records found for the search criteria.</p>
     {% endif %}
+    <hr>
+    <button onclick="window.location.href='/search'">Back To Search</button>
 {% endblock %}
