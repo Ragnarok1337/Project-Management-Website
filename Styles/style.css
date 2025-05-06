@@ -2,30 +2,57 @@ body {
     font-family: sans-serif;
     margin: 0;
     padding: 0;
-    /*animation: colorChange 0.01s infinite; */
+    display: flex; /* Use Flexbox for layout */
+    flex-direction: column; /* Stack children vertically */
+    min-height:100vh;
 }
 
-/*
-@keyframes colorChange {
-    0% { background-color: red; }
-    25% { background-color: green; }
-    50% { background-color: blue; }
-    75% { background-color: yellow; }
-    100% { background-color: red; }
-  }
-*/
+main {
+    flex: 1 0 auto; /* Grow to fill available space, don't shrink, auto height based on content */
+    padding: 20px;
+}
 
+/* Header | Nav Links | Footer */ 
 header {
-    background-color: #1b0846;
+    background-color: #01484b;
     padding: 10px;
     display: flex;
     justify-content:space-between;
 }
 
-nav a {
+.nav-links{
     margin-right: 10px;
     text-decoration: none;
-    color: #da0a0a;
+    color: white;
+    font-size:1.5em;
+}
+
+.nav-links:hover{
+    color:rgb(255, 246, 162);
+    text-decoration: underline;
+    font-weight:700;
+}
+
+#logout-btn{
+    color: black;
+    background-color:cyan;
+    font-size:1.5em;
+    transition:transition 0.5s ease;
+}
+
+#logout-btn:hover{
+    color:white;
+    background-color: red;
+    transform:scale(1.1);
+}
+
+footer {
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 10px;
+    bottom: 0;
+    width: 100%;
 }
 
 main {
@@ -47,37 +74,20 @@ main {
     color:black;
 }
 
-.nav-links{
-    font-size:1.5em;
-}
-
-.nav-links:hover{
-    color:palevioletred;
-    text-decoration: underline;
-    font-weight:700;
-}
-
-footer {
-    background-color: #333;
-    color: white;
-    text-align: center;
-    padding: 10px;
-    position: fixed;
-    bottom: 0;
-    width: 100%;
-}
 
 /* Search Page */
 .searchBtn{
     width:20%;
     color:white;
-    background-color: black;
+    background-color: orange;
     padding-top:10px;
     padding-bottom:10px;
+    transition: transform 0.5s ease;
 }
 
 .searchBtn:hover{
-    color:cyan;
+    background-color:rgb(255, 201, 100);
+    transform:scale(1.05);
 }
 
 #searchBtnDiv{
@@ -115,8 +125,8 @@ footer {
     margin: 0; /* Remove default margins */
 }
 
-/* All Tasks Page */
-#tasks-grid {
+/* All Tasks Page | Completed Tasks Page */
+.tasks-grid {
     display: flex;
     flex-wrap: wrap; /* Allow wrapping to next row */
     gap: 20px; /* Space between task cards */
@@ -131,10 +141,111 @@ footer {
     background-color: #077A7D;
 }
 
+.completed-task-card{
+    flex: 1 1 calc(50% - 20px); /* Two cards per row, accounting for gap */
+    box-sizing: border-box;
+    padding: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color:grey;
+}
+
 #task-title{
     color:white;
 }
 
 .task-details{
     color:rgb(255, 241, 198);
+}
+
+.task-pages-nav-btn{
+    font-size:1.4rem;
+    color:White;
+    background-color:orange;
+    transition: transform 0.5s ease;
+}
+
+.task-pages-complete-btn{
+    font-size:1.4rem;
+    color:White;
+    background-color:blue;
+    transition: transform 0.5s ease;
+    width: 200px;
+}
+
+.task-pages-edit-btn{
+    font-size:1.4rem;
+    color:White;
+    background-color:orange;
+    transition: transform 0.5s ease;
+    width: 200px;
+}
+
+.task-pages-delete-btn{
+    font-size:1.4rem;
+    color:White;
+    background-color:red;
+    transition: transform 0.5s ease;
+    width: 200px;
+}
+
+
+.task-pages-nav-btn:hover{
+    transform:scale(1.05);
+    background-color: rgb(255, 201, 100);
+}
+
+.task-pages-complete-btn:hover{
+    transform:scale(1.05);
+    background-color: rgb(66, 126, 255);
+}
+
+.task-pages-edit-btn:hover{
+    transform:scale(1.05);
+    background-color: rgb(255, 201, 100);
+}
+
+.task-pages-delete-btn:hover{
+    transform:scale(1.05);
+    background-color: rgb(251, 88, 88);
+}
+
+/* Edit Task Page */
+
+#save-btn{
+    color: white;
+    background-color:rgb(4, 195, 4);
+    border:3px solid grey;
+    transition: transform 0.5s ease;
+    font-size:1.5rem;
+    transition: transform 0.5s ease;
+    width:100px;
+   
+}
+
+#save-btn:hover{
+    background-color:rgb(122, 234, 122);
+    transform:scale(1.05);
+}
+
+#cancel-btn{
+    color:white;
+    background-color:red;
+    border:3px solid grey;
+    transition: transform 0.5s ease;
+    font-size:1.5rem;
+    transition: transform 0.5s ease;
+    width:100px;
+}
+
+#cancel-btn:hover{
+    background-color:rgb(251, 88, 88); 
+    transform:scale(1.05);
+}
+
+/* GLOBAL STYLES*/
+
+label{
+
+    font-weight:700;
 }

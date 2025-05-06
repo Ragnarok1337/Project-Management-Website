@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Edit Task - {{ super() }}
+{% endblock %}
+
+{% block page_title %}
+    Edit Task
+{% endblock %}
+
+{% block content %}
+    <!-- Display flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <p class="{{ category }}">{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <p>Update the title, description, and assignment of the task.</p>
+    
+    <form action="{{ url_for('display_edit_task', task_id=task.id) }}" method="POST">
+        <div>
+            <label for="title">Title</label><br><br>
+            <input type="text" id="title" name="title" value="{{ task.title }}" size="32" required><br><br>
+        </div>
+        
+        <div>
+            <label for="body">Description</label><br><br>
+            <textarea id="body" name="body" cols="32" rows="4" required>{{ task.body }}</textarea><br><br>
+        </div>
+        
+        <div>
+            <label for="user">Assign To</label><br><br>
+            <select id="user" name="user" required>
+                {% for user in users %}
+                    <option value="{{ user.id }}" {% if user.id == task.assigned_to %}selected{% endif %}>{{ user.username }}</option>
+                {% endfor %}
+            </select><br><br>
+        </div>
+        
+        <button type="submit" id="save-btn">Save</button><br><br>
+    </form>
+    
+    <button onclick="window.location.href='/all-tasks'" id="cancel-btn">Cancel</button>
+{% endblock %}

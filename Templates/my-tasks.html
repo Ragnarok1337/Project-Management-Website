@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %} Home Page {{ super() }}{% endblock %}
+{% block page_title %} {{title}} {% endblock %}
+{% block content %}
+    <p>{{content}}</p>
+    <p>View your tasks.</p>
+    <hr>
+
+    {% if tasks %}
+        <div class="tasks-grid">
+        {% for task in tasks %}
+                <div class="task-card">
+                    <h2 id="task-title">Title: {{ task.title }}</h2>
+                    <p class="task-details">Description: {{ task.body }}</p>
+                    <p class="task-details">Assigned to: {{ task.assigned_to }}</p>
+                    <p class="task-details">Created by: {{ task.created_by }}</p>
+                    <p class="task-details">Date created: {{ task.date_created }}</p>
+                </div>
+        {% endfor %}
+        </div>
+    {% endif %}
+{% endblock %}

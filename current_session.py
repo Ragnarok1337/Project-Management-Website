@@ -3,8 +3,8 @@ from flask import session
 from model import db, Users
 
 # Store hashed admin password
-userRole = ""  # Default to empty string
-userID = None  # Default to None
+userRole = ""  
+userID = None  
 
 admin_credentials = {
     "admin": generate_password_hash("123")
@@ -13,7 +13,7 @@ admin_credentials = {
 class CurrentSession:
     @staticmethod
     def authenticate(username, password):
-        
+        global userRole, userID
 
         print(f"Trying to log in user: {username}")
         
@@ -21,6 +21,7 @@ class CurrentSession:
         if username in admin_credentials and check_password_hash(admin_credentials[username], password):
             print("Logged in as admin")
             userRole = "admin"
+            userID = 999
             return True
         
         # Check database user
@@ -46,6 +47,7 @@ class CurrentSession:
     
     @staticmethod
     def getRole():
+        print(f" User role is: {userRole}")
         return userRole
     
     @staticmethod
@@ -56,3 +58,7 @@ class CurrentSession:
     @staticmethod
     def getID():
         return userID
+    
+    @staticmethod
+    def getTasks():
+        return tasks

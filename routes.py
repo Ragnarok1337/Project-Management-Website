@@ -1,4 +1,4 @@
-from main_app import app
+from app import app
 from model import db, Tasks, Users
 from flask import render_template, redirect, url_for, flash, session, request
 from datetime import datetime
@@ -25,18 +25,21 @@ def display_home():
         content = ""
         match role:
             case "admin":
-                content = "Welcome Admin! You have global superuser privileges. All actions are allowed."
+                content = "Welcome Admin! You have global super user privileges. All actions are allowed."
             case "employee":
                 content = f"Hello {username} your role is {role}, you can check your assigned tasks, and see all tasks!"
             case "manager":
                 content = f"Hello {username} your role is {role}, you can see all assigned tasks, and assign tasks to employees!"
-        return render_template("index.html", title="Welcome to TechHub!", content=content, CS=CS)
+        return render_template("index.html", title=f"Welcome {username}!", content=content, CS=CS)
     return redirect(url_for("display_login"))
     
 
 # Login Page
 @app.route('/login', methods=['GET', 'POST'])
 def display_login():
+    if CS.isLoggedIn():
+        return redirect(url_for('display_home'))
+    
     form = LoginForm()
     msg = ""
     
@@ -61,6 +64,28 @@ def logout():
     session.pop("username", None)
     return redirect(url_for('display_login'))
 
+# My Tasks Page
+@app.route('/my-tasks')
+def display_my_tasks():
+    if CS.notLoggedIn():
+        return redirect(url_for("display_login"))
+    
+    # Fetch all tasks of logged in user
+    user_id = Users.query.filter_by(username=CS.getUsername()).first().id
+
+    tasks = Tasks.query.filter_by(assigned_to=user_id).all()
+
+    # Query usernames for display
+    task_list = map_tasks_to_usernames(tasks)
+    
+    return render_template(
+        'my-tasks.html',
+        title="My Tasks",
+        content=f"This page shows all tasks assigned to {CS.getUsername()}.",
+        tasks=task_list,
+        CS=CS
+    )
+
 # Search Page
 @app.route('/search', methods=['GET', 'POST'])
 def search_page():
@@ -76,31 +101,35 @@ def search_page():
     records = []
     user = None
     searchType= None
+    tasks = None
+    task_list = None
 
     if request.method == 'POST' and sform.validate_on_submit():
         value = sform.value.data
-        
-        
 
         if 'search_title' in request.form:
             searchType = "title"
-            records = Tasks.query.filter(Tasks.title.ilike(f"%{value}%")).all()
+            tasks = Tasks.query.filter(Tasks.title.ilike(f"%{value}%")).all()
         elif 'search_description' in request.form:
             searchType = "description"
-            records = Tasks.query.filter(Tasks.body.ilike(f"%{value}%")).all()
+            tasks = Tasks.query.filter(Tasks.body.ilike(f"%{value}%")).all()
         elif 'search_username' in request.form:
             searchType = "username"
-            records = Users.query.filter(Users.username.ilike(f"{value}")).all()
-            if records:
-                user = records[0]
+            user = Users.query.filter(Users.username.ilike(f"%{value}%")).first()
+            if user:
+                user_id = user.id
+                tasks = Tasks.query.filter(Tasks.assigned_to == user_id).all()
+
+        if tasks:    
+            task_list = map_tasks_to_usernames(tasks)
 
         return render_template(
             'search_result.html',
             title="Search result",
             task_columns=task_columns,
             user_columns=user_columns,
-            records=records,
-            searchedUser = user,
+            tasks=task_list,
+            user = user,
             searchType = searchType,
             searchTerm = value,
             CS=CS
@@ -117,7 +146,7 @@ def search_page():
 # Admin Actions Page - ( Only Visible To Admin )
 @app.route('/admin-actions', methods=['GET', 'POST'])
 def admin_actions():
-    if CS.notLoggedIn() or CS.getUsername() != "admin":
+    if CS.notLoggedIn():
         return redirect(url_for("display_login"))
     
     task_form = AddTaskForm()
@@ -129,21 +158,34 @@ def admin_actions():
     if task_form.validate_on_submit() and 'task_submit' in request.form:
         title = task_form.title.data
         body = task_form.body.data
-        role = task_form.role.data
-        assigned_user = Users.query.filter_by(role=role).first()
-        task = Tasks(
-            title=title,
-            body=body,
-            assigned_to=assigned_user.id if assigned_user else None,
-            created_by=CS.getID(),
-            date_created=datetime.utcnow().strftime("%m-%d-%y"),
-            completed=0
-        )
         
-        db.session.add(task)
-        db.session.commit()
-        # Hide form variable
-        task_submitted = True
+
+        user_id = int(task_form.user.data)
+        exists = Users.query.filter_by(id=user_id).first().id
+        created_by = ""
+        if CS.getUsername() == "admin":
+            created_by = CS.getID()
+        else:
+            created_by = CS.getUsername()
+            created_by = Users.query.filter_by(username=created_by).first().id
+
+        # Get user ID from table and set 'created_by' variable to number instead of username
+
+        if (exists):
+
+            task = Tasks(
+                title=title,
+                body=body,
+                assigned_to=user_id,
+                created_by=created_by,
+                date_created=datetime.utcnow().strftime("%m-%d-%y"),
+                completed=0
+            )
+        
+            db.session.add(task)
+            db.session.commit()
+            # Hide form variable
+            task_submitted = True
         
     
     # Handle Add User form submission
@@ -160,7 +202,7 @@ def admin_actions():
     
     return render_template(
         "admin-actions.html",
-        title="Admin Operations",
+        title="Add Tasks & Users",
         content="Use forms to complete the following actions:",
         task_form=task_form,  # For add-task.html
         user_form=user_form,  # For add-user.html
@@ -175,8 +217,12 @@ def admin_actions():
 def display_add_task():
     if CS.notLoggedIn():
         return redirect(url_for("display_login"))
+    
 
-    return render_template("add-task.html", title="Add Task", content="Content!")
+    return render_template(
+        "add-task.html",
+        title="Add Task",
+        )
 
 # Add User Page - ( Extends Admin Actions)
 app.route('/add-user', methods=['GET','POST'])
@@ -184,7 +230,10 @@ def display_add_user():
     if CS.notLoggedIn():
         return redirect(url_for("display_login"))
     
-    return render_template("add-user.html", title="Add User", content="Content!")
+    return render_template(
+        "add-user.html",
+        title="Add User"
+        )
 
 # EMPLOYEES PAGE
 @app.route('/employees', methods=['GET'])
@@ -210,15 +259,155 @@ def display_tasks():
     if CS.notLoggedIn():
         return redirect(url_for("display_login"))
 
-    tasks = Tasks.query.all()
-    task_columns = [column.name for column in Tasks.__table__.columns]
-
+    # Handle form submissions
+    if request.method == 'POST':
+        task_id = request.form.get("task_id")
+        action = request.form.get("action")
+        task = Tasks.query.get(task_id)
+        
+        if task:
+            if action == "mark_complete":
+                if CS.getRole() in ["admin", "Manager"]:
+                    task.completed = 1
+                    db.session.commit()
+                    flash("Task marked as complete!", "success")
+                else:
+                    flash("You do not have permission to mark tasks as complete.", "error")
+            elif action == "edit":
+                if CS.getRole() in ["admin", "Manager"]:
+                    return redirect(url_for('display_edit_task', task_id=task_id))
+                else:
+                    flash("You do not have permission to edit tasks.", "error")
+            elif action == "delete":
+                if CS.getRole() in ["admin", "Manager"]:
+                    db.session.delete(task)
+                    db.session.commit()
+                    flash("Task deleted successfully!", "success")
+                else:
+                    flash("You do not have permission to delete tasks.", "error")
+        
+        return redirect(url_for('display_tasks'))
+    
+    # Fetch all incomplete tasks
+    tasks = Tasks.query.filter_by(completed=0).all()
+    
+    # Query usernames for display
+    task_list = map_tasks_to_usernames(tasks)
+    
     return render_template(
         "all-tasks.html",
         title="All Tasks Page!",
         content="View all active tasks on this page.",
-        form=form,
-        tasks=tasks,
-        task_columns=task_columns,
+        tasks=task_list,
         CS=CS
     )
+
+# EDIT TASK PAGE
+@app.route('/edit-task/<int:task_id>', methods=['GET', 'POST'])
+def display_edit_task(task_id):
+    if CS.notLoggedIn():
+        return redirect(url_for("display_login"))
+    
+    if CS.getRole() not in ["admin", "Manager"]:
+        flash("You do not have permission to edit tasks.", "error")
+        return redirect(url_for("display_tasks"))
+    
+    # Fetch the task to edit
+    task = Tasks.query.get_or_404(task_id)
+    
+    if request.method == 'POST':
+        # Update the task with form data
+        task.title = request.form.get("title")
+        task.body = request.form.get("body")
+        task.assigned_to = int(request.form.get("user"))
+        db.session.commit()
+        flash("Task updated successfully!", "success")
+        return redirect(url_for("display_tasks"))
+    
+    # Prepare task data for display
+    creator_username = "Admin" if task.created_by == 999 else "None"
+    if task.created_by and task.created_by != 999:
+        creator = Users.query.get(task.created_by)
+        creator_username = creator.username if creator else "Unknown"
+    
+    assignee_username = "None"
+    if task.assigned_to:
+        assignee = Users.query.get(task.assigned_to)
+        assignee_username = assignee.username if assignee else "Unknown"
+    
+    task_data = {
+        "id": task.id,
+        "title": task.title,
+        "body": task.body,
+        "assigned_to": task.assigned_to,
+        "created_by": creator_username,
+        "date_created": task.date_created,
+        "assignee_username": assignee_username
+    }
+    
+    # Fetch all users for the dropdown
+    users = Users.query.all()
+    
+    return render_template(
+        "edit-task.html",
+        title="Edit Task",
+        task=task_data,
+        users=users,
+        CS=CS
+    )
+
+# COMPLETED TASKS
+@app.route('/completed-tasks')
+def display_completed_tasks():
+    if CS.notLoggedIn():
+        return redirect(url_for("display_login"))
+    
+    # Fetch all completed tasks
+    tasks = Tasks.query.filter_by(completed=1).all()
+    
+    # Query usernames for display
+    task_list = map_tasks_to_usernames(tasks)
+    
+    return render_template(
+        "completed-tasks.html",
+        title="Completed Tasks Page!",
+        content="These are all the tasks marked as complete in the database.",  # Fixed typo: "Theses" to "These"
+        tasks=task_list,  # Pass the modified task list
+        CS=CS
+    )
+
+### Utility Functions
+
+# Convert assigned_to & created_by id numbers from Tasks table to the corresponding usernames
+def map_tasks_to_usernames(tasks):
+    """
+    Convert a list of Tasks objects into a list of dictionaries with usernames for created_by and assigned_to.
+    Args:
+        tasks: List of Tasks objects from the database.
+    Returns:
+        List of dictionaries with task details and usernames.
+    """
+    task_list = []
+    for task in tasks:
+        # Get creator username
+        creator_username = "Admin" if task.created_by == 999 else "None"
+        if task.created_by and task.created_by != 999:
+            creator = Users.query.get(task.created_by)
+            creator_username = creator.username if creator else "Unknown"
+        
+        # Get assignee username
+        assignee_username = "None"
+        if task.assigned_to:
+            assignee = Users.query.get(task.assigned_to)
+            assignee_username = assignee.username if assignee else "Unknown"
+        
+        # Add task with usernames to the list
+        task_list.append({
+            "id": task.id,
+            "title": task.title,
+            "body": task.body,
+            "assigned_to": assignee_username,
+            "created_by": creator_username,
+            "date_created": task.date_created
+        })
+    return task_list

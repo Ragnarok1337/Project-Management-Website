@@ -12,20 +12,49 @@
     <p>{{ content }}</p>
     
     <!-- Tasks table section -->
+    <hr>
     <h2>All Tasks</h2>
+    <button onclick="goToCompletedTasks()" class="task-pages-nav-btn">Go To Completed Tasks</button>
+    <hr>
+
     {% if tasks %}
-        <div id="tasks-grid">
+        <div class="tasks-grid">
             {% for task in tasks %}
             <div class="task-card">
-                <h2 id="task-title">Title: {{task.title}}</h2>
-                <p class="task-details">Description: {{task.body}}</p>
-                <p class="task-details">Assigned to: {{task.assigned_to}}</p>
-                <p class="task-details">Created by: {{task.created_by}}</p>
-                <p class="task-details">Date created: {{task.date_created}}</p>
+                <h2 id="task-title">Title: {{ task.title }}</h2>
+                <p class="task-details">Description: {{ task.body }}</p>
+                <p class="task-details">Assigned to: {{ task.assigned_to }}</p>
+                <p class="task-details">Created by: {{ task.created_by }}</p>
+                <p class="task-details">Date created: {{ task.date_created }}</p>
+                {% if CS.getRole() == "admin" or CS.getRole() == "Manager" %}
+                    <div style="display:flex; flex-direction:column;">
+                        <form action="/all-tasks" method="POST">
+                            <input type="hidden" name="task_id" value="{{ task.id }}">
+                            <input type="hidden" name="action" value="mark_complete">
+                            <button type="submit" class="task-pages-complete-btn">Mark Complete</button>
+                        </form>
+                        <form action="/all-tasks" method="POST">
+                            <input type="hidden" name="task_id" value="{{ task.id }}">
+                            <input type="hidden" name="action" value="edit">
+                            <button type="submit" class="task-pages-edit-btn">Edit</button>
+                        </form>
+                        <form action="/all-tasks" method="POST">
+                            <input type="hidden" name="task_id" value="{{ task.id }}">
+                            <input type="hidden" name="action" value="delete">
+                            <button type="submit" class="task-pages-delete-btn">Delete</button>
+                        </form>
+                    </div>
+                {% endif %}
             </div>
             {% endfor %}
         </div>
     {% else %}
         <p>No tasks found in the database.</p>
     {% endif %}
+
+    <script>
+        function goToCompletedTasks() {
+            window.location.href = '/completed-tasks';
+        }
+    </script>
 {% endblock %}

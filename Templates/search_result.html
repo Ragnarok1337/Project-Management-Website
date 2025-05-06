@@ -9,71 +9,32 @@
 {% endblock %}
 
 {% block content %}
+    <hr>
+    <button onclick="window.location.href='/search'" class="task-pages-nav-btn">Back To Search</button>
     {% if searchType == "title" %}
         <h2>Titles Containing: {{searchTerm}}</h2>
     {% elif searchType == "description" %}
         <h2>Descriptions Containing: {{searchTerm}}</h2>
     {% elif searchType == "username" %}
         {% if searchedUser != "" %}
-            <h2>All Tasks Assigned to User {{searchedUser}}:</h2>
+            <h2>All Tasks Assigned to User {{searchTerm}}:</h2>
         {% endif %}
     {% endif %}
     
-
-    {% if records %}
-        {% if 'title' in records[0].__dict__ %}
-            
-            
-            <table border="1">
-                <thead>
-                    <tr>
-                        <th>id</th>
-                        <th>title</th>
-                        <th>body</th>
-                        <th>assigned_to</th>
-                        <th>created_by</th>
-                        <th>date_created</th>
-                        <th>completed</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for record in records %}
-                        <tr>
-                            <td>{{ record.id }}</td>
-                            <td>{{ record.title }}</td>
-                            <td>{{ record.body }}</td>
-                            <td>{{ record.assigned_user.username if record.assigned_user else 'None' }}</td>
-                            <td>{{ record.creator_user.username if record.creator_user else 'None' }}</td>
-                            <td>{{ record.date_created }}</td>
-                            <td>{{ 'Yes' if record.completed else 'No' }}</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-
-        {% elif 'username' in records[0].__dict__ %}
-            <table border="1">
-                <thead>
-                    <tr>
-                        <th>id</th>
-                        <th>username</th>
-                        <th>role</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for record in records %}
-                        <tr>
-                            <td>{{ record.id }}</td>
-                            <td>{{ record.username }}</td>
-                            <td>{{ record.role }}</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        {% endif %}
+    {% if tasks %}
+    <div class="tasks-grid">
+        {% for task in tasks %}
+        <div class="task-card">
+            <h2 id="task-title">Title: {{ task.title }}</h2>
+            <p class="task-details">Description: {{ task.body }}</p>
+            <p class="task-details">Assigned to: {{ task.assigned_to }}</p>
+            <p class="task-details">Created by: {{ task.created_by }}</p>
+            <p class="task-details">Date created: {{ task.date_created }}</p>
+        </div>
+        {% endfor %}
     {% else %}
         <p>No records found for the search criteria.</p>
     {% endif %}
     <hr>
-    <button onclick="window.location.href='/search'">Back To Search</button>
+    
 {% endblock %}

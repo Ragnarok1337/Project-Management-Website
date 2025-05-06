@@ -12,17 +12,18 @@
             <a href="/index" class="nav-links">Home</a>
             <a href="/employees" class="nav-links">Employee Info</a>
             <a href="/all-tasks" class="nav-links">All Tasks</a>
-            <a href="/log" class="nav-links">Logs</a>
             <a href="/search" class="nav-links">Search</a>
             {% if CS.getUsername() == "admin" %}
                 <a href="/admin-actions" class="nav-links">Admin Actions</a>
-            {% endif %}
-            {% if CS.getRole() and CS.getRole().lower() == "manager" %}
-                <a href="/manager-actions" class="nav-links">Manager Actions</a>
+            {% elif CS.getRole() == "Manager" %}
+                <a href="/admin-actions" class="nav-links">Manager Actions</a>
+                <a href="/my-tasks" class="nav-links">My Tasks</a>
+            {% else %}
+                <a href="/my-tasks" class="nav-links">My Tasks</a>
             {% endif %}
         </nav>
         <nav>
-            <button onclick="window.location.href='/logout'">Logout</button>
+            <button onclick="window.location.href='/logout'" id="logout-btn">Logout</button>
         </nav>
     </header>
     <main>

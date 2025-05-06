@@ -12,7 +12,7 @@
                     {{ task_form.body.label }}
                     {{ task_form.body(cols="40", rows="5", style="resize: none; margin: 0;") }}
                 </div>
-                <p>{{ task_form.role.label }} {{ task_form.role() }}</p>
+                <p>{{ task_form.user.label }} {{ task_form.user() }}</p>
                 <p>{{ task_form.submit() }}</p>
             </form>
         {% endif %}
