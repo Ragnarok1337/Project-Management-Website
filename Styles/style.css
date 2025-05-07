@@ -210,6 +210,11 @@ main {
     background-color: rgb(251, 88, 88);
 }
 
+/* My Task Page */
+.search-task-sections{
+    display:flex;
+    flex-direction: column;
+}
 /* Edit Task Page */
 
 #save-btn{

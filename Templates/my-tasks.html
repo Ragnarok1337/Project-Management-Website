@@ -6,7 +6,8 @@
     <p>{{content}}</p>
     <p>View your tasks.</p>
     <hr>
-
+    <button onclick="goToCompletedTasks()" class="task-pages-nav-btn">Go To My Completed Tasks</button>
+    <hr>
     {% if tasks %}
         <div class="tasks-grid">
         {% for task in tasks %}
@@ -20,4 +21,11 @@
         {% endfor %}
         </div>
     {% endif %}
+
+    <script>
+        function goToCompletedTasks(button) {
+            
+            window.location.href = '/my-completed-tasks';
+        }
+    </script>
 {% endblock %}

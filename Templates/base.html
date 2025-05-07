@@ -10,7 +10,9 @@
     <header>
         <nav>
             <a href="/index" class="nav-links">Home</a>
+            {% if CS.getUsername() == "admin" %}
             <a href="/employees" class="nav-links">Employee Info</a>
+            {% endif %}
             <a href="/all-tasks" class="nav-links">All Tasks</a>
             <a href="/search" class="nav-links">Search</a>
             {% if CS.getUsername() == "admin" %}

@@ -17,24 +17,44 @@
         <h2>Descriptions Containing: {{searchTerm}}</h2>
     {% elif searchType == "username" %}
         {% if searchedUser != "" %}
-            <h2>All Tasks Assigned to User {{searchTerm}}:</h2>
+            <h2>Tasks Assigned to User {{searchTerm}}:</h2>
         {% endif %}
     {% endif %}
     
-    {% if tasks %}
-    <div class="tasks-grid">
-        {% for task in tasks %}
-        <div class="task-card">
-            <h2 id="task-title">Title: {{ task.title }}</h2>
-            <p class="task-details">Description: {{ task.body }}</p>
-            <p class="task-details">Assigned to: {{ task.assigned_to }}</p>
-            <p class="task-details">Created by: {{ task.created_by }}</p>
-            <p class="task-details">Date created: {{ task.date_created }}</p>
+    <div class="search-task-sections">
+        {% if active_tasks %}
+        <h3>Active tasks</h3>
+        <div class="tasks-grid">
+            {% for task in active_tasks %}
+            <div class="task-card">
+                <h2 id="task-title">Title: {{ task.title }}</h2>
+                <p class="task-details">Description: {{ task.body }}</p>
+                <p class="task-details">Assigned to: {{ task.assigned_to }}</p>
+                <p class="task-details">Created by: {{ task.created_by }}</p>
+                <p class="task-details">Date created: {{ task.date_created }}</p>
+            </div>
+            {% endfor %}
         </div>
-        {% endfor %}
-    {% else %}
-        <p>No records found for the search criteria.</p>
-    {% endif %}
-    <hr>
-    
+        {% else %}
+            <p>No records found for the search criteria.</p>
+        {% endif %}
+        
+        <hr>
+        {% if completed_tasks %}
+        <h3>Completed tasks</h3>
+        <div class="tasks-grid">
+            {% for task in completed_tasks %}
+            <div class="completed-task-card">
+                <h2 id="task-title">Title: {{ task.title }}</h2>
+                <p class="task-details">Description: {{ task.body }}</p>
+                <p class="task-details">Assigned to: {{ task.assigned_to }}</p>
+                <p class="task-details">Created by: {{ task.created_by }}</p>
+                <p class="task-details">Date created: {{ task.date_created }}</p>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+            <p>No records found for the search criteria.</p>
+        {% endif %}
+    </div>
 {% endblock %}

@@ -1,4 +1,4 @@
-from app import app
+from main_app import app
 from model import db, Tasks, Users
 from flask import render_template, redirect, url_for, flash, session, request
 from datetime import datetime
@@ -73,7 +73,7 @@ def display_my_tasks():
     # Fetch all tasks of logged in user
     user_id = Users.query.filter_by(username=CS.getUsername()).first().id
 
-    tasks = Tasks.query.filter_by(assigned_to=user_id).all()
+    tasks = Tasks.query.filter_by(assigned_to=user_id, completed=0).all()
 
     # Query usernames for display
     task_list = map_tasks_to_usernames(tasks)
@@ -86,7 +86,30 @@ def display_my_tasks():
         CS=CS
     )
 
-# Search Page
+# MY COMPLETED TASKS
+@app.route('/my-completed-tasks')
+def display_my_completed_tasks():
+    if CS.notLoggedIn():
+        return redirect(url_for("display_login"))
+    
+    # Fetch user ID for task query
+    user_id = Users.query.filter_by(username=CS.getUsername()).first().id
+
+    # Fetch all completed tasks assigned to the user
+    tasks = Tasks.query.filter_by(assigned_to=user_id, completed=1).all()
+    
+    # Query usernames for display
+    task_list = map_tasks_to_usernames(tasks)
+    
+    return render_template(
+        "my-completed-tasks.html",
+        title="Completed Tasks Page!",
+        content="These are all the tasks marked as complete in the database.",  # Fixed typo: "Theses" to "These"
+        tasks=task_list,  # Pass the modified task list
+        CS=CS
+    )
+
+
 @app.route('/search', methods=['GET', 'POST'])
 def search_page():
     if CS.notLoggedIn():
@@ -100,38 +123,51 @@ def search_page():
     
     records = []
     user = None
-    searchType= None
-    tasks = None
-    task_list = None
+    searchType = None
+    active_task_list = None
+    completed_task_list = None
 
     if request.method == 'POST' and sform.validate_on_submit():
         value = sform.value.data
 
         if 'search_title' in request.form:
             searchType = "title"
-            tasks = Tasks.query.filter(Tasks.title.ilike(f"%{value}%")).all()
+            active_tasks = Tasks.query.filter(Tasks.title.ilike(f"%{value}%"), Tasks.completed == 0).all()
+            completed_tasks = Tasks.query.filter(Tasks.title.ilike(f"%{value}%"), Tasks.completed == 1).all()
         elif 'search_description' in request.form:
             searchType = "description"
-            tasks = Tasks.query.filter(Tasks.body.ilike(f"%{value}%")).all()
+            active_tasks = Tasks.query.filter(Tasks.body.ilike(f"%{value}%"), Tasks.completed == 0).all()
+            completed_tasks = Tasks.query.filter(Tasks.body.ilike(f"%{value}%"), Tasks.completed == 1).all()
         elif 'search_username' in request.form:
             searchType = "username"
             user = Users.query.filter(Users.username.ilike(f"%{value}%")).first()
             if user:
                 user_id = user.id
-                tasks = Tasks.query.filter(Tasks.assigned_to == user_id).all()
+                active_tasks = Tasks.query.filter(Tasks.assigned_to == user_id, Tasks.completed == 0).all()
+                completed_tasks = Tasks.query.filter(Tasks.assigned_to == user_id, Tasks.completed == 1).all()
+            else:
+                active_tasks = []
+                completed_tasks = []
 
-        if tasks:    
-            task_list = map_tasks_to_usernames(tasks)
+        # Map tasks to usernames only if tasks exist
+        if active_tasks and completed_tasks:    
+            active_task_list = map_tasks_to_usernames(active_tasks)  # Fixed: Use active_tasks
+            completed_task_list = map_tasks_to_usernames(completed_tasks)  # Fixed: Use completed_tasks
+        elif active_tasks:
+            active_task_list = map_tasks_to_usernames(active_tasks)  # Fixed: Use active_tasks
+        elif completed_tasks:
+            completed_task_list = map_tasks_to_usernames(completed_tasks)  # Fixed: Use completed_tasks
 
         return render_template(
             'search_result.html',
             title="Search result",
             task_columns=task_columns,
             user_columns=user_columns,
-            tasks=task_list,
-            user = user,
-            searchType = searchType,
-            searchTerm = value,
+            active_tasks=active_task_list,
+            completed_tasks=completed_task_list,
+            user=user,
+            searchType=searchType,
+            searchTerm=value,
             CS=CS
         )
 
